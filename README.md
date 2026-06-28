@@ -45,7 +45,7 @@ Requires: GM role
 ### `/phone_call`
 Sends an in-game message through the phone system.
 
-Requires: GM role
+Requires: Has Phone role
 
 ---
 
