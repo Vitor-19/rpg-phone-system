@@ -60,9 +60,13 @@ def setup_phone(bot: discord.Client):
 
         if role not in user.roles:
             await user.add_roles(role)
-            await interaction.response.send_message(f"{user.display_name} now has a phone!")
+            await interaction.response.send_message(
+                f"{user.display_name} now has a phone!"
+            )
         else:
-            await interaction.response.send_message(f"{user.display_name} already has a phone.")
+            await interaction.response.send_message(
+                f"{user.display_name} already has a phone."
+            )
 
     # -------- REMOVE PHONE --------
     @bot.tree.command(description="Remove a phone from a player.")
@@ -73,38 +77,43 @@ def setup_phone(bot: discord.Client):
 
         if role in user.roles:
             await user.remove_roles(role)
-            await interaction.response.send_message(f"{user.display_name} no longer has a phone.")
+            await interaction.response.send_message(
+                f"{user.display_name} no longer has a phone."
+            )
         else:
-            await interaction.response.send_message(f"{user.display_name} doesn't have a phone.")
+            await interaction.response.send_message(
+                f"{user.display_name} doesn't have a phone."
+            )
 
     # -------- PHONE CALL --------
     @bot.tree.command(description="Send an in-game message via phone system.")
-    @app_commands.checks.has_role(GM_ROLE_NAME)
+    @app_commands.checks.has_role(PHONE_ROLE_NAME)  
     async def phone_call(
         interaction: discord.Interaction,
-        user: discord.Member,
         to: str,
         msg: str
     ):
 
+        user = interaction.user  # quem está usando o comando
+
         role = discord.utils.get(interaction.guild.roles, name=PHONE_ROLE_NAME)
 
-        if role in user.roles:
-            channel = discord.utils.get(interaction.guild.channels, name=LOG_CHANNEL_NAME)
-
-            await channel.send(
-                f"☎️ NEW MESSAGE\nFrom: {user.display_name}\nTo: {to}\n\n{msg}"
-            )
-
-            await interaction.response.send_message(
-                f"Message sent to {to}",
+        if role not in user.roles:
+            return await interaction.response.send_message(
+                "You don't have a phone.",
                 ephemeral=True
             )
-        else:
-            await interaction.response.send_message(
-                "User does not have a phone.",
-                ephemeral=True
-            )
+
+        channel = discord.utils.get(interaction.guild.channels, name=LOG_CHANNEL_NAME)
+
+        await channel.send(
+            f"☎️ NEW MESSAGE\nFrom: {user.display_name}\nTo: {to}\n\n{msg}"
+        )
+
+        await interaction.response.send_message(
+            f"Message sent to {to}",
+            ephemeral=True
+        )
 
     # -------- GM RESPONSE --------
     @bot.tree.command(description="Respond to a player's phone message.")
